@@ -1,52 +1,38 @@
 pipeline {
     agent any
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
-    }
 
     stages {
-        stage('Checkout') {
+        stage('Build and Push Docker Image') {
+            environment {
+                DOCKER_REGISTRY = 'etamarah'
+                DOCKER_IMAGE_NAME = 'flask-cs'
+                DOCKER_IMAGE_TAG = 'latest'
+                DOCKER_PASSWORD = credentials('dockerhub-cred')
+                DOCKER_USERNAME = 'etamarah'
+            }
             steps {
-                // Checkout the source code from the Git repository
-                git "https://github.com/etamarah/Home-project.git"
+                sh "docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG ."
+                sh "echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin"
+                sh "docker push $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
+                sh "docker logout"
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t etamarah/flask_app:$BUILD_NUMBER ."
+        stage('Integrate Jenkins with EKS Cluster and Deploy App') {
+            environment {
+                EKS_CLUSTER_NAME = 'eks-NgNdrWhM'
+                AWS_REGION = 'us-east-1'
+                NAMESPACE = 'prod'
             }
-        }
-
-        stage('Login to DockerHub') {
             steps {
-                sh "echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin"
-            }
-        }
-
-        stage('Push Image to DockerHub') {
-            steps {
-                sh "docker push etamarah/flask_app:$BUILD_NUMBER"
-            }
-        }
-
-        stage('Deploy App to EKS') {
-            agent { label "ansible" }
-            steps {
-                withCredentials([
-                    [
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws-cred', 
-                        accesskeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretkeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]
-                ]) {
-                    sh 'aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION'
-                    sh 'sed -i "s/__IMAGE_NAME__/$IMAGE_NAME/" deploy.yaml'
-                    sh 'kubectl apply -f /My_Project/Deployment/deploy.yaml'
+                withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
+                    script {
+                        sh "aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION"
+                        sh "kubectl apply -f manifest/namespace.yaml"
+                        sh "kubectl apply -f manifest/deploy.yaml -f manifest/service.yaml -n $NAMESPACE"
+                    }
                 }
             }
         }
     }
 }
-
