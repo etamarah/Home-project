@@ -1,0 +1,14 @@
+pipeline {
+    agent {label "docker-node"}
+     environment {
+                DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
+            }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the source code from the Git repository
+                git ""
+            }
+        }
+}
