@@ -13,7 +13,6 @@ This README.md file describes the files in this repository and how to use them.
 EKS/eks.tf
 
 This file contains the Terraform configuration for creating an EKS cluster. It uses the `terraform-aws-modules/eks/aws` module.
-
 To create the cluster, run the following commands:
 
 "terraform init" - to initialize the backend and terraform registry also provide the requires plugins and download modules.
@@ -27,7 +26,6 @@ Deployment/deploy.yaml
 This file contains the Kubernetes deployment configuration for the Flask app. It defines a deployment with 3 replicas, a service, and a liveness probe.
 
 To deploy the app, run the following command:
-
 
 kubectl apply -f deploy.yaml
 
@@ -62,3 +60,4 @@ Once you have all of the required software installed, you can follow these steps
 8. Run `jenkinsfile build` to run the pipeline.
 
 Once the pipeline has completed, your app will be deployed to EKS.
+
