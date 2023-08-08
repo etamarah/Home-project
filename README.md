@@ -51,7 +51,6 @@ To use this code, you will need to have the folllowing installed and integrated 
 Once you have all the required software installed, you can follow these steps:
 
 1. Clone the repository to your local machine.
-2. Create a new Terraform configuration file for your environment.
 3. Run 'terraform init’ to initialize the Terraform configuration.
 4. Run ‘terraform apply’ to create ESK cluster.
 5. Create a new Kubernetes deployment file for your app.
@@ -59,7 +58,10 @@ Once you have all the required software installed, you can follow these steps:
 7. Create a new Jenkinsfile for your CI/CD pipeline.
 8. Run ‘jenkinsfile build’ to run the pipeline.
 
-Once the pipeline is completed, your app will be deployed to EKS
+Once the pipeline is completed, your app will be deployed to EKS and can be accessed on the UI
+
+NOTE
+To ensure complete automation of this project i configured a github webhook push event to automate a new build anytime a new version of the code in checked into the project Repo
 
 
 
