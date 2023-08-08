@@ -5,7 +5,7 @@ pipeline {
         stage('Build and Push Docker Image') {
             environment {
                 DOCKER_REGISTRY = 'etamarah'
-                DOCKER_IMAGE_NAME = 'flask-cs'
+                DOCKER_IMAGE_NAME = 'flask-imgg'
                 DOCKER_IMAGE_TAG = 'latest'
                 DOCKER_PASSWORD = credentials('dockerhub-cred')
                 DOCKER_USERNAME = 'etamarah'
