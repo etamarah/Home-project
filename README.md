@@ -44,7 +44,6 @@ How to use this code
 
 To use this code, you will need to have the folllowing installed and integrated together:
 
-* Terraform
 * Kubernetes
 *Jenkins
 *Docker
