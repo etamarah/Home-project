@@ -1,41 +1,50 @@
-pipeline {
-    agent any
+ipeline {
+    agent {label "docker-node"}
+     environment {
+                DOCKERHUB_CREDENTIALS = credentials('dockerhub-cerd')
+            }
 
     stages {
-        stage('Build and Push Docker Image') {
-            environment {
-                DOCKER_REGISTRY = 'etamarah'
-                DOCKER_IMAGE_NAME = 'flask-cs'
-                DOCKER_IMAGE_TAG = 'latest'
-            }
+        stage('Checkout') {
             steps {
-                script {
-                    def dockerHubCredentials = credentials('dockerhub-cred')
-                    
-                    sh "docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG ."
-                    sh "echo ${dockerHubCredentials.password} | docker login --username ${dockerHubCredentials.username} --password-stdin"
-                    sh "docker push $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
-                    sh "docker logout"
-                }
+                // Checkout the source code from the Git repository
+                git "https://github.com/etamarah/crowdstrike_proj.git"
             }
         }
 
-        stage('Integrate Jenkins with EKS Cluster and Deploy App') {
-            environment {
-                EKS_CLUSTER_NAME = 'eks-NgNdrWhM'
-                AWS_REGION = 'us-east-1'
-                NAMESPACE = 'prod'
-            }
+        stage('Build Docker Image') {
+
             steps {
-                script {
-                    withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
-                        sh "aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION"
-                        sh "ls && ls deployment"
-                        sh "kubectl apply -f namespace.yaml"
-                        sh "kubectl apply -f deploy.yaml -f service.yaml -n $NAMESPACE"
-                    }
-                }
+                sh "docker build -t etamarah/flask_app:$BUILD_NUMBER ."
             }
         }
+
+        stage('Login to DockerHub') {
+    steps {
+        sh "echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin"
     }
+}
+
+        stage('Push Image to DockerHub') {
+            steps {
+                sh "docker push etamarah/flask_app:$BUILD_NUMBER"
+            }
+        }
+   
+   stage('Deploy App to EKS') {
+            agent { label "ansible" }
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-cred', 
+                    accesskeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretkeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        
+                    sh('aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION')
+                    sh 'sed -i "s/__IMAGE_NAME__/$IMAGE_NAME/" deploy.yaml'
+                    sh 'kubectl apply -f /My_Project/Deployment/deploy.yaml'
+               }
+          }
+     }
+  }
 }
