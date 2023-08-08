@@ -22,6 +22,10 @@ To create the cluster, run the following commands:
 "terraform plan" to do a dry run preview the infrastructures that terraform is about to create and also provide an execution plan to create them
 "terraform apply" to provision or modify the resource outline in the terraform plan.
 
+Dockerfile
+=============
+This file contains a Dockerfile that is used to containerize a Flask application. The Docker image built from this Dockerfile is designed to run a Flask web application.
+
 
 
 Deployment / deploy.yaml
@@ -61,6 +65,7 @@ Once you have all the required software installed, you can follow these steps:
 Once the pipeline is completed, your app will be deployed to EKS and can be accessed on the UI
 
 NOTE
+===============
 To ensure complete automation of this project i configured a github webhook push event to automate a new build anytime a new version of the code in checked into the project Repo
 
 
