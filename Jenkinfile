@@ -1,14 +1,17 @@
 pipeline {
-    agent {label "docker-node"}
-     environment {
-                DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
-            }
-
+    agent {
+        label "docker-node"
+    }
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
+    }
     stages {
         stage('Checkout') {
             steps {
                 // Checkout the source code from the Git repository
-                git ""
+                git "https://github.com/etamarah/Home-project.git"
             }
         }
+    }
 }
+
