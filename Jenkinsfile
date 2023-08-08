@@ -1,4 +1,4 @@
-ipeline {
+pipeline {
     agent {label "docker-node"}
      environment {
                 DOCKERHUB_CREDENTIALS = credentials('dockerhub-cerd')
