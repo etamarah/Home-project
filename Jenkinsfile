@@ -24,7 +24,7 @@ pipeline {
 
         stage('Deploy App to EKS') {
             environment {
-                EKS_CLUSTER_NAME = 'eks-hMNmt8Rj'
+                EKS_CLUSTER_NAME = 'eks-PItWA4sQ'
                 AWS_REGION = 'us-east-2'
                 NAMESPACE  = 'pre-prod'
             }
