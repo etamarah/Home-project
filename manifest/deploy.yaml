@@ -1,20 +1,24 @@
+# yaml file configuration to deploy the containerized application
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: flask-app
   name: flask-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: flask-app
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: flask-app
     spec:
       containers:
-        - name: flask-app
-          image: etamarah/__IMAGE_NAME__:__TAG_
+        - image: etamarah/__IMAGE_NAME__:__TAG__
+          name: flask-app
           ports:
             - containerPort: 5000
           resources:
